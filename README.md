@@ -6,22 +6,73 @@ A home-services marketplace built for Texas residents. Browse 30+ service catego
 
 - **Next.js 15** (App Router, RSC) + **TypeScript** strict
 - **Tailwind CSS 3.4** with a custom navy/burnt-orange/cream theme
-- **Prisma 5** + **SQLite**
+- **Prisma 5** + **Postgres** (Neon for hosted, any Postgres locally)
 - **react-hook-form** + **Zod** for forms
 - **Radix UI** primitives + **Lucide** icons
 - **react-markdown** for cost-guide and article bodies
 
-## Quickstart
+## Quickstart (local)
+
+You'll need a Postgres database. The fastest path is a free Neon project — see the deploy section below for the link. Once you have a connection string:
 
 ```bash
-npm install
-npx prisma generate
-npx prisma db push
-npm run db:seed   # seeds 32 categories, 18 cities, 66 pros, 339 reviews, 32 cost guides, 15 articles
-npm run dev       # http://localhost:3000
+cp .env.example .env       # then paste your DATABASE_URL into .env
+npm install                # auto-runs `prisma generate`
+npm run db:init            # `prisma db push` + seed (32 cats, 18 cities, 66 pros, 339 reviews, 32 cost guides, 15 articles)
+npm run dev                # http://localhost:3000
 ```
 
 Inspect data with `npm run db:studio`.
+
+## Deploying to Vercel + Neon
+
+This site is built to deploy on Vercel with a Neon Postgres database. Free tier is enough.
+
+### 1. Create the database
+
+1. Go to https://console.neon.tech and create a free project (region: pick the one closest to your Vercel region — `us-east-2` / Ohio is a safe default for the US).
+2. From the project dashboard, copy the **pooled connection string** (it ends with `-pooler`). It looks like `postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require`.
+
+### 2. Push schema and seed data (one-time)
+
+Run this locally with the Neon URL exported, before your first deploy:
+
+```bash
+DATABASE_URL="postgresql://...neon.tech/...?sslmode=require" npm run db:init
+```
+
+This runs `prisma db push` (creates all tables) and the seed script (~70 inserts, takes about 10 seconds).
+
+### 3. Deploy to Vercel
+
+```bash
+npm i -g vercel
+vercel              # answer the prompts; choose your scope; link to a new project
+```
+
+Then in the Vercel dashboard for the project:
+
+1. **Settings → Environment Variables** — add `DATABASE_URL` with the Neon pooled connection string. Apply to Production, Preview, and Development.
+2. **Settings → General** — make sure the Node.js version is 20+ (default).
+3. Trigger a redeploy: `vercel --prod`.
+
+That's it. The build runs `prisma generate` (via `postinstall`) and then `next build`, which prerenders all the static pages.
+
+### 4. Future schema changes
+
+When you change `prisma/schema.prisma`, push the change to your Neon DB before the next deploy:
+
+```bash
+DATABASE_URL="postgresql://...neon.tech/..." npx prisma db push
+```
+
+For a more disciplined migration workflow, use `npm run db:migrate -- --name your_change_name` instead — that creates a versioned migration file you can commit, and `prisma migrate deploy` will apply it on subsequent environments.
+
+### Notes
+
+- **Quote requests and pro applications persist to the Neon database.** Inspect them with `npx prisma studio` (using the Neon URL) or any Postgres client.
+- The site does not require auth, so no auth env vars are needed.
+- Forms include honeypot + min-time-on-form + an in-memory IP rate limit. The rate limit is per-instance — on Vercel's serverless runtime that means it's best-effort. For stricter limits, swap `src/lib/ratelimit.ts` for a Redis or Upstash backend.
 
 ## Useful scripts
 
@@ -31,7 +82,10 @@ Inspect data with `npm run db:studio`.
 | `npm run build` | Production build (generates ~346 static pages) |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm run db:push` | Apply schema to SQLite |
+| `npm run db:push` | Apply schema to Postgres (no migration history) |
+| `npm run db:migrate` | Create + apply a versioned migration |
+| `npm run db:deploy` | Apply pending migrations (run in CI / Vercel build) |
+| `npm run db:init` | Push schema + seed (first-time setup) |
 | `npm run db:seed` | Seed the database |
 | `npm run db:reset` | Drop, push, and reseed |
 | `npm run db:studio` | Prisma Studio (port 5555) |
