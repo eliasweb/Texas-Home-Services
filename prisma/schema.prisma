@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ServiceCategory {
+  id            String               @id @default(cuid())
+  slug          String               @unique
+  name          String
+  tagline       String?
+  description   String
+  longCopy      String?
+  iconKey       String
+  heroImage     String?
+  featured      Boolean              @default(false)
+  sortOrder     Int                  @default(0)
+  texasNote     String?
+  subcategories ServiceSubcategory[]
+  pros          ProService[]
+  costGuide     CostGuide?
+  quotes        QuoteRequest[]
+  createdAt     DateTime             @default(now())
+
+  @@index([featured])
+  @@index([sortOrder])
+}
+
+model ServiceSubcategory {
+  id          String          @id @default(cuid())
+  slug        String
+  name        String
+  description String?
+  category    ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+
+  @@unique([categoryId, slug])
+  @@index([categoryId])
+}
+
+model City {
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  name         String
+  region       String?
+  population   Int?
+  lat          Float?
+  lng          Float?
+  blurb        String
+  longCopy     String?
+  zips         String
+  featured     Boolean          @default(false)
+  pros         Pro[]
+  quotes       QuoteRequest[]
+  applications ProApplication[]
+
+  @@index([featured])
+}
+
+model Pro {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  name          String
+  tagline       String?
+  bio           String
+  phone         String?
+  email         String?
+  website       String?
+  yearFounded   Int?
+  licenseNumber String?
+  insured       Boolean        @default(true)
+  bonded        Boolean        @default(false)
+  emergency24x7 Boolean        @default(false)
+  homeCity      City           @relation(fields: [homeCityId], references: [id])
+  homeCityId    String
+  serviceZips   String
+  photos        String
+  logo          String?
+  ratingAvg     Float          @default(0)
+  ratingCount   Int            @default(0)
+  responseMins  Int?
+  hiredCount    Int            @default(0)
+  badges        String
+  featured      Boolean        @default(false)
+  services      ProService[]
+  reviews       Review[]
+  quotes        QuoteRequest[]
+  createdAt     DateTime       @default(now())
+
+  @@index([homeCityId])
+  @@index([ratingAvg])
+  @@index([featured])
+}
+
+model ProService {
+  id         String          @id @default(cuid())
+  pro        Pro             @relation(fields: [proId], references: [id], onDelete: Cascade)
+  proId      String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  primary    Boolean         @default(false)
+
+  @@unique([proId, categoryId])
+  @@index([categoryId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  pro        Pro      @relation(fields: [proId], references: [id], onDelete: Cascade)
+  proId      String
+  authorName String
+  authorCity String?
+  rating     Int
+  title      String?
+  body       String
+  serviceTag String?
+  createdAt  DateTime @default(now())
+
+  @@index([proId])
+  @@index([rating])
+}
+
+model QuoteRequest {
+  id         String           @id @default(cuid())
+  pro        Pro?             @relation(fields: [proId], references: [id])
+  proId      String?
+  category   ServiceCategory? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  city       City?            @relation(fields: [cityId], references: [id])
+  cityId     String?
+  zip        String
+  fullName   String
+  email      String
+  phone      String
+  details    String
+  timing     String?
+  budget     String?
+  status     String           @default("new")
+  ipHash     String?
+  userAgent  String?
+  createdAt  DateTime         @default(now())
+
+  @@index([createdAt])
+  @@index([categoryId])
+  @@index([cityId])
+}
+
+model ProApplication {
+  id            String   @id @default(cuid())
+  businessName  String
+  contactName   String
+  email         String
+  phone         String
+  city          City?    @relation(fields: [cityId], references: [id])
+  cityId        String?
+  zip           String
+  categoriesCsv String
+  yearsInBiz    Int?
+  licenseNumber String?
+  insured       Boolean  @default(false)
+  about         String
+  status        String   @default("new")
+  ipHash        String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model CostGuide {
+  id         String          @id @default(cuid())
+  slug       String          @unique
+  title      String
+  category   ServiceCategory @relation(fields: [categoryId], references: [id])
+  categoryId String          @unique
+  summary    String
+  body       String
+  lowUsd     Int
+  avgUsd     Int
+  highUsd    Int
+  unitLabel  String
+  factors    String
+  updatedAt  DateTime        @updatedAt
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  body        String
+  category    String
+  heroImage   String?
+  readMinutes Int      @default(5)
+  publishedAt DateTime @default(now())
+
+  @@index([publishedAt])
+}

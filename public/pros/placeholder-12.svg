@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Texas Home Services placeholder">
+  <rect width="120" height="120" fill="#152A47"/>
+  <g fill="none" stroke="#F1E9D6" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.92">
+    <path d="M60 30 a16 16 0 0 0 -16 16 v32 a16 16 0 0 0 32 0 V46 a16 16 0 0 0 -16 -16 Z M30 50 L44 56 M30 70 L44 70 M30 90 L44 84 M90 50 L76 56 M90 70 L76 70 M90 90 L76 84"/>
+  </g>
+  <g fill="#BF5700">
+    <path d="M104 14 L107 22 L115 22 L108.5 26.8 L111 35 L104 30 L97 35 L99.5 26.8 L93 22 L101 22 Z"/>
+  </g>
+  <rect x="0" y="110" width="120" height="10" fill="#BF5700" opacity="0.85"/>
+</svg>

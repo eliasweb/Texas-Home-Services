@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#152A47"/>
+      <stop offset="1" stop-color="#1F3A5F"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g opacity="0.10" fill="#E1B546">
+    <path d="M1040 80 L1080 198 L1208 198 L1108 270 L1148 388 L1040 320 L932 388 L972 270 L872 198 L1000 198 Z"/>
+  </g>
+  <text x="80" y="280" font-family="Georgia, serif" font-size="84" font-weight="700" fill="#FAF6EE">Texas Home</text>
+  <text x="80" y="370" font-family="Georgia, serif" font-size="84" font-weight="700" fill="#E1B546">Services</text>
+  <text x="80" y="450" font-family="Inter, system-ui, sans-serif" font-size="32" fill="#F1E9D6">Trusted local pros from El Paso to Houston</text>
+  <rect x="80" y="500" width="160" height="6" fill="#BF5700"/>
+</svg>
